@@ -14,12 +14,15 @@ app.use(BodyParser.urlencoded({
 app.use(cors())
 
 
+
+
 router.get('/', (req, res) => {
     connection.query('SELECT * from wilders', (err, results) => {
         if (err) throw err
         res.send(results);
     })
 });
+
 
 router.get('/light', (req, res) => {
     connection.query('SELECT firstname, lastname, formation from wilders', (err, results) => {
@@ -28,9 +31,18 @@ router.get('/light', (req, res) => {
     })
 });
 
+router.get('/order/:id/:or', (req, res) => {
+    const ordered = req.params.or
+    const label =req.params.id
+    connection.query(`SELECT * from wilders ORDER BY ${label} ${ordered}`, (err, results) => {
+        if (err) throw err
+        res.send(results);
+    })
+});
+
 router.get('/:searchname', (req, res) => {
     const idSearch = req.params.searchname
-    connection.query('SELECT * from wilders WHERE firstname = ?', idSearch, (err, results) => {
+    connection.query("SELECT * from wilders WHERE firstname = ?", idSearch, (err, results) => {
         if (err) throw err
         res.send(results);
     })
@@ -78,7 +90,14 @@ router.post('/', (req, res) => {
     })
 })
 
-router.delete('/:id', (req, res) => {
+router.delete('/delete/finish', (req, res) => {
+    connection.query('DELETE from wilders WHERE is_student = 0', (err, results) => {
+        if (err) throw err
+        res.send(results);
+    })
+});
+
+router.delete('/delete/:id', (req, res) => {
     const idWilder = req.params.id
     connection.query('DELETE from wilders WHERE id = ?', idWilder, (err, results) => {
         if (err) throw err
@@ -86,12 +105,7 @@ router.delete('/:id', (req, res) => {
     })
 });
 
-router.delete('/finish', (req, res) => {
-    connection.query('DELETE from wilders WHERE id = 1', (err, results) => {
-        if (err) throw err
-        res.send(results);
-    })
-});
+
 
 app.use('/api/wilders', router)
 
