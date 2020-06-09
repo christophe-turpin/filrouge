@@ -31,10 +31,9 @@ router.get('/light', (req, res) => {
     })
 });
 
-router.get('/order/:id/:or', (req, res) => {
+router.get('/order/name/:or', (req, res) => {
     const ordered = req.params.or
-    const label =req.params.id
-    connection.query(`SELECT * from wilders ORDER BY ${label} ${ordered}`, (err, results) => {
+    connection.query(`SELECT * from wilders ORDER BY firstname ${ordered}`, (err, results) => {
         if (err) throw err
         res.send(results);
     })
@@ -42,7 +41,7 @@ router.get('/order/:id/:or', (req, res) => {
 
 router.get('/:searchname', (req, res) => {
     const idSearch = req.params.searchname
-    connection.query("SELECT * from wilders WHERE firstname = ?", idSearch, (err, results) => {
+    connection.query("SELECT * from wilders WHERE firstname LIKE ?", `${idSearch}%`, (err, results) => {
         if (err) throw err
         res.send(results);
     })
@@ -65,7 +64,7 @@ router.get('/startdate/:searchdate', (req, res) => {
 });
 
 
-router.put('/:id', (req, res) => {
+router.put('/modify/:id', (req, res) => {
     const idWilder = req.params.id
     const formData = req.body
     connection.query('UPDATE wilders set ? WHERE id= ?', [formData, idWilder], (err, results) => {
@@ -74,7 +73,7 @@ router.put('/:id', (req, res) => {
     })
 });
 
-router.put('/:id/finish', (req, res) => {
+router.put('/:id/toggle', (req, res) => {
     const idWilder = req.params.id
     connection.query('UPDATE wilders SET is_student = !is_student WHERE id = ?', idWilder, (err, results) => {
         if (err) throw err
@@ -82,7 +81,7 @@ router.put('/:id/finish', (req, res) => {
     })
 });
 
-router.post('/', (req, res) => {
+router.post('/new', (req, res) => {
     const formData = req.body
     connection.query('INSERT INTO wilders SET ?', formData, (err, results) => {
         if (err) throw err
