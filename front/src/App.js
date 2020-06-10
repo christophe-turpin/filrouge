@@ -20,24 +20,75 @@ function App() {
   const [modValue, setModValue] = useState('')
   const [idWilder, setIdWilder] = useState()
 
+  
+  const deleteStaff = (e) => {
+    e.preventDefault()
+    axios.delete(`http://localhost:3001/api/wilders/delete/fire`)
+      .then(setMessage('Type de Wilder bien supprimé'))
+      .then(getWilders)
+      .catch(err => console.error(err))
+
+  }
+
+  const deleteStudent = (e) => {
+    e.preventDefault()
+    axios.delete(`http://localhost:3001/api/wilders/delete/finish`)
+      .then(setMessage('Type de Wilder bien supprimé'))
+      .then(getWilders)
+      .catch(err => console.error(err))
+
+  }
+
+  const deleteId = (e) => {
+    e.preventDefault()
+    axios.delete(`http://localhost:3001/api/wilders/delete/${idWilder}`)
+      .then(setMessage('Wilder bien supprimé'))
+      .then(getWilders)
+      .catch(err => console.error(err))
+
+  }
+
+  const putToggleStaff = (e) => {
+    e.preventDefault()
+    axios.put(`http://localhost:3001/api/wilders/${idWilder}/toggleStaff`)
+      .then(setMessage('Wilder bien modifié'))
+      .then(getWilders)
+      .catch(err => console.error(err))
+
+  }
+
+  const putToggleStud = (e) => {
+    e.preventDefault()
+    axios.put(`http://localhost:3001/api/wilders/${idWilder}/toggleStudent`)
+            .then(setMessage('Wilder bien modifié'))
+            .then(getWilders)
+            .catch(err => console.error(err))
+
+  }
+  
   const putOnId = (e) => {
     e.preventDefault()
     amodif === 'firstname' ? 
-    axios.put(`http://localhost:3001/api/wilders/modify/${idWilder}`, {firstname : modValue})
+    axios.put(`http://localhost:3001/api/wilders/modify/${idWilder}`, { firstname : modValue })
     : amodif === 'lastname' ?
     axios.put(`http://localhost:3001/api/wilders/modify/${idWilder}`, { lastname: modValue })
     : amodif === 'formation' ?
-    axios.put(`http://localhost:3001/api/wilders/modify/${idWilder}`, { formation: modValue })
-      .then(setMessage('Wilder bien modifié')) : ""
+    axios.put(`http://localhost:3001/api/wilders/modify/${idWilder}`, { formation: modValue }): ""
+      .then(setMessage('Wilder bien modifié')) 
+      .then(getWilders)
       .catch(err => console.error(err))
+    
   }
 
   const postWilder = (e) => {
     e.preventDefault()
     position === 'student' ? setNewWilder({ ...newWilder, is_student: true, is_staff: false }) : position === 'staff' ? setNewWilder({ ...newWilder,  is_student: false, is_staff: true }) : setMessage('Choisissez un poste s\'il vous plait')
-    axios.post(`http://localhost:3001/api/wilders/new`, newWilder)
+    setTimeout(() => {
+      axios.post(`http://localhost:3001/api/wilders/new`, newWilder)
       .then(setMessage('Wilder bien enregistré'))
+      .then(getWilders)
       .catch(err => console.error(err))
+    }, 200); 
   }
 
   const getOrdered = (order) => {
@@ -88,8 +139,8 @@ function App() {
   }
 
   useEffect(() => {
-    getWilders()
-  }, [])
+    getWilders(wilders)
+  }, [wilders])
 
   const getWilderslight = () => {
     axios.get('http://localhost:3001/api/wilders/light')
@@ -98,8 +149,8 @@ function App() {
   }
 
   useEffect(() => {
-    getWilderslight()
-  }, [])
+    getWilderslight(wilderslight)
+  }, [wilderslight])
 
   return (
     <div className="App">
@@ -108,13 +159,13 @@ function App() {
         {wilders.map(wild =>{
           wild.startdate = wild.startdate.substr(0, 10)
           return (
-          <li>Id: {wild.id}, Prénom: {wild.firstname}, Nom: {wild.lastname}, Poste:{wild.formation}, Arrivée {wild.startdate}</li>
+          <li>Id: {wild.id}, Prénom: {wild.firstname}, Nom: {wild.lastname}, Formation: {wild.formation}, Position: {wild.is_staff ? 'Encadrement Wild' : wild.is_student ? 'Elève wilder' : 'Inconnue'} Arrivée: {wild.startdate}</li>
         )})}
       </ul>
       <h1>GET (light) - Récupération de quelques champs spécifiques (id, names, dates, etc...)</h1>
       <ul>
       {wilderslight.map(wild => 
-        <li>Prénom: {wild.firstname}, Nom: {wild.lastname}, Poste:{wild.formation}</li>
+        <li>Prénom: {wild.firstname}, Nom: {wild.lastname}, Formation:{wild.formation}</li>
       )}
       </ul>
       <h1>GET - Récupération d'un ensemble de données en fonction du filtre formation contient</h1>
@@ -123,7 +174,7 @@ function App() {
         {filtercontain.map(wild => {
           wild.startdate = wild.startdate.substr(0, 10)
           return (
-            <li>Prénom: {wild.firstname}, Nom: {wild.lastname}, Poste:{wild.formation}, Arrivée {wild.startdate}</li>
+            <li>Prénom: {wild.firstname}, Nom: {wild.lastname}, Formation:{wild.formation}, Arrivée {wild.startdate}</li>
           )
         })}
       </ul>
@@ -133,7 +184,7 @@ function App() {
         {filterbegin.map(wild => {
           wild.startdate = wild.startdate.substr(0, 10)
           return (
-            <li>Prénom: {wild.firstname}, Nom: {wild.lastname}, Poste:{wild.formation}, Arrivée {wild.startdate}</li>
+            <li>Prénom: {wild.firstname}, Nom: {wild.lastname}, Formation:{wild.formation}, Arrivée {wild.startdate}</li>
           )
         })}
       </ul>
@@ -143,7 +194,7 @@ function App() {
         {filterSupDate.map(wild => {
           wild.startdate = wild.startdate.substr(0, 10)
           return (
-            <li>Prénom: {wild.firstname}, Nom: {wild.lastname}, Poste:{wild.formation}, Arrivée {wild.startdate}</li>
+            <li>Prénom: {wild.firstname}, Nom: {wild.lastname}, Formation:{wild.formation}, Arrivée {wild.startdate}</li>
           )
         })}
       </ul>
@@ -156,7 +207,7 @@ function App() {
         {ordered.map(wild => {
           wild.startdate = wild.startdate.substr(0, 10)
           return (
-            <li>Prénom: {wild.firstname}, Nom: {wild.lastname}, Poste:{wild.formation}, Arrivée {wild.startdate}</li>
+            <li>Prénom: {wild.firstname}, Nom: {wild.lastname}, Formation:{wild.formation}, Arrivée {wild.startdate}</li>
           )
         })}
       </ul>
@@ -164,7 +215,7 @@ function App() {
       <form onSubmit={postWilder}>
       <input type='text' placeholder='Prénom du nouveau wilder' value={newWilder.firstname} onChange={(e) => setNewWilder({...newWilder, firstname: e.target.value})} />
       <input type='text' placeholder='Nom du nouveau wilder' value={newWilder.lastname} onChange={(e) => setNewWilder({...newWilder,  lastname: e.target.value })} />
-      <input type='text' placeholder='Poste du nouveau wilder' value={newWilder.formation} onChange={(e) => setNewWilder({...newWilder,  formation: e.target.value })} />
+      <input type='text' placeholder='Formation du nouveau wilder' value={newWilder.formation} onChange={(e) => setNewWilder({...newWilder,  formation: e.target.value })} />
       <input type='date' placeholder='Arrivée du nouveau wilder' value={newWilder.startdate} onChange={(e) => setNewWilder({...newWilder,  startdate: e.target.value })} />
       <select onChange={(e) => setPosition(e.target.value)}>
         <option value=''>Position du nouveau Wilder</option>
@@ -186,14 +237,51 @@ function App() {
           <option value=''>Choisissez le champ à modifier</option>
           <option value='firstname'>Prénom</option>
           <option value='lastname'>Nom</option>
-          <option value='formation'>Poste</option>
+          <option value='formation'>Formation</option>
         </select>
-        <input type='text' placeholder={`Nouveau ${amodif === 'firstname' ? 'prénom' : amodif === 'lastname' ? 'nom' : amodif === 'formation' ? 'poste' : ''} du wilder`} value={modValue} onChange={(e) => setModValue(e.target.value)} />
+        <input type='text' placeholder={`${amodif === 'firstname' ? 'Nouveau prénom' : amodif === 'lastname' ? 'Nouveau nom' : amodif === 'formation' ? 'Nouvelle formation' : ''} du wilder`} value={modValue} onChange={(e) => setModValue(e.target.value)} />
         <button type='submit'>Valider</button>
       </form>
       <p>{message}</p>
-
-
+      <h1>PUT - Toggle du booléen</h1>
+      <form onSubmit={putToggleStud}>
+        <select onChange={(e) => setIdWilder(e.target.value)}>
+          <option value=''>Choisissez l'id du wilder qui commence ou termine une formation</option>
+          {wilders.map(wild =>
+            <option value={wild.id}>Id:{wild.id}, Wilder:{wild.firstname} {wild.lastname}, Formation:{wild.formation}</option>
+          )}
+        </select>
+        <button type='submit'>Valider</button>
+      </form>
+      <form onSubmit={putToggleStaff}>
+        <select onChange={(e) => setIdWilder(e.target.value)}>
+          <option value=''>Choisissez l'id du wilder qui entre ou sort de l'équipe d'Encadrement</option>
+          {wilders.map(wild =>
+            <option value={wild.id}>Id:{wild.id}, Wilder:{wild.firstname} {wild.lastname}, Formation:{wild.formation}</option>
+          )}
+        </select>
+        <button type='submit'>Valider</button>
+      </form>
+      <p>{message}</p>
+      <h1>DELETE - Suppression d'une entité</h1>
+      <form onSubmit={deleteId}>
+        <select onChange={(e) => setIdWilder(e.target.value)}>
+          <option value=''>Choisissez l'id du wilder qui commence ou termine une formation</option>
+          {wilders.map(wild =>
+            <option value={wild.id}>Id:{wild.id}, Wilder:{wild.firstname} {wild.lastname}, Formation:{wild.formation}</option>
+          )}
+        </select>
+        <button type='submit'>Valider</button>
+      </form>
+      <p>{message}</p>
+      <h1>DELETE - Suppression de toutes les entités dont le booléen est false</h1>
+      <form onSubmit={deleteStudent}>
+        <button type='submit'>supprimer les Eleves</button>
+      </form>
+      <form onSubmit={deleteStaff}>
+        <button type='submit'>supprimer les Encadrants</button>
+      </form>
+      <p>{message}</p>
     </div>
   );
 }

@@ -73,9 +73,17 @@ router.put('/modify/:id', (req, res) => {
     })
 });
 
-router.put('/:id/toggle', (req, res) => {
+router.put('/:id/toggleStudent', (req, res) => {
     const idWilder = req.params.id
     connection.query('UPDATE wilders SET is_student = !is_student WHERE id = ?', idWilder, (err, results) => {
+        if (err) throw err
+        res.send(results);
+    })
+});
+
+router.put('/:id/toggleStaff', (req, res) => {
+    const idWilder = req.params.id
+    connection.query('UPDATE wilders SET is_staff = !is_staff WHERE id = ?', idWilder, (err, results) => {
         if (err) throw err
         res.send(results);
     })
@@ -90,6 +98,13 @@ router.post('/new', (req, res) => {
 })
 
 router.delete('/delete/finish', (req, res) => {
+    connection.query('DELETE from wilders WHERE is_staff = 0', (err, results) => {
+        if (err) throw err
+        res.send(results);
+    })
+});
+
+router.delete('/delete/fire', (req, res) => {
     connection.query('DELETE from wilders WHERE is_student = 0', (err, results) => {
         if (err) throw err
         res.send(results);
